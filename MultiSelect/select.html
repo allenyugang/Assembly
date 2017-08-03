@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+		<script src="jquery.sumoselect.js"></script>
+		<link href="sumoselect.css" rel="stylesheet"/>
+	</head>
+	<body>
+	<select multiple="multiple" placeholder="选择流派" class="selectBox select_genre_style" id="music_styleSelect" name="music_styleSelect">
+	</select>
+	<button class="echo">回显</button>
+	</body>
+</html>
+<script>
+	$.ajax({
+		type:'get',
+		url:'data.json',
+		async:false,
+		success:function(data){
+			var html = '';
+		    var length = data.length;
+		    $.each(data,function(i,item){
+		    	html += '<option id="'+item.id+'" value="'+item.id+'">'+item.text+'</option>'
+		    })
+		    $('.selectBox').html(html);
+		    $('.selectBox').SumoSelect({ csvDispCount: length, captionFormatAllSelected: "你已经全选" });
+		},error:function(data){
+			console.log(data)
+		}
+	})
+	$('.echo').on('click',function(){
+		$.ajax({
+			type:'get',
+			url:'echo_data.json',
+			async:false,
+			success:function(data){
+				var genre = data.genre
+		        //var selectBox = $('.echo_selectBox').find('option')
+		        var lableName = $('.sumo_music_styleSelect .options').find('li label')
+		        var selectArray = []
+		        var R_flag = 0
+		        console.log(lableName)
+		        $(genre).each(function (i, temp) {
+		            console.log($(temp)[0].name)
+		            $(lableName).each(function (i, item) {
+		                if ($(temp)[0].name == 'R&B' && $(item).html() == 'R&amp;B') {
+		                    if (R_flag != 1) {
+		                        R_flag = 1
+		                        selectArray.push('R&B')
+		                        $(item).parent().addClass("selected")
+		                    }
+		                }
+		                if ($(temp)[0].name == $(item).html()) {
+		                    $(item).parent().addClass("selected")
+		                    selectArray.push($(item).html())
+		                }
+		            })
+		        })
+        		console.log(selectArray)
+		        if (selectArray.length > 0) {
+		            $('.sumo_music_styleSelect .CaptionCont ').find('span').removeClass("placeholder")
+		            $('.sumo_music_styleSelect .CaptionCont ').attr('title', selectArray)
+		            $('.sumo_music_styleSelect .CaptionCont ').find('span').html(selectArray.toString())
+		        }
+		        $('.select_genre_style').on('change', function () {
+		            if ($('.CaptionCont ').find('span').html() != '') {
+		                $('.CaptionCont ').find('span').removeClass('placeholder')
+		            }
+		            var option = $('.options').find('.selected')
+		            var option_arr = []
+		            $(option).each(function (i, item) {
+		                option_arr.push($(item).find('label').html())
+		                //console.log($(item).find('label').html())
+		            })
+		            console.log(option_arr)
+		            $('.CaptionCont ').attr('title', option_arr)
+		
+		            $('.CaptionCont ').find('span').html(option_arr.toString())
+		            if ($('.CaptionCont ').attr('title') == '') {
+		                $('.CaptionCont ').attr('title', '选择流派')
+		                $('.CaptionCont ').find('span').html('选择流派')
+		            }
+		        })
+			}
+		})
+		
+	})
+</script>
